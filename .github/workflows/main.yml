@@ -3,7 +3,8 @@ name: Terraform Apply EC2 Instances
 on:
   push:
     branches:
-      - main  # Trigger on push to main branch
+      - main
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
   terraform:
@@ -11,14 +12,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # Step 2: Set up Terraform CLI
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: 1.9.0
+          terraform_version: 1.5.0
 
+      # Step 3: Configure AWS credentials using GitHub secrets
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -26,11 +30,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      # Step 4: Initialize Terraform (ensure backend is properly initialized)
       - name: Initialize Terraform
         run: terraform init
 
+      # Step 5: Run Terraform plan with troubleshooting (disable locking, reduce parallelism, set timeout)
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -lock=false -parallelism=1
+        timeout-minutes: 10  # Set timeout to 10 minutes to prevent long waiting times
 
+      # Step 6: Apply the Terraform changes automatically (if needed)
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        if: success()  # Only run if the plan succeeds
+        run: terraform apply -auto-approve -lock=false -parallelism=1
+        timeout-minutes: 10  # Set timeout to 10 minutes for apply step
