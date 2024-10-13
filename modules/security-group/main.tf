@@ -1,23 +1,9 @@
-resource "aws_security_group" "sg" {
-  name        = "app_security_group"
+resource "aws_security_group" "app_sg" {
+  vpc_id = var.vpc_id
 
   ingress {
-    from_port   = 25
-    to_port     = 25
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  
-  ingress {
-    from_port   = 30000
-    to_port     = 32768
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 3000
-    to_port     = 10000
+    from_port   = 22
+    to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -37,8 +23,22 @@ resource "aws_security_group" "sg" {
   }
 
   ingress {
-    from_port   = 22
-    to_port     = 22
+    from_port   = 25
+    to_port     = 25
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 30000
+    to_port     = 32768
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 3000
+    to_port     = 10000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -56,4 +56,12 @@ resource "aws_security_group" "sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = {
+    Name = "AppSecurityGroup"
+  }
+}
+
+output "security_group_id" {
+  value = aws_security_group.app_sg.id
 }

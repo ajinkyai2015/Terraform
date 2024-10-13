@@ -1,22 +1,24 @@
-
-terraform {
-  backend "s3" {
-    bucket         = "cicd-statefile"       # Your S3 bucket for state storage
-    key            = "terraform/ec2-state.tfstate"  # Path to store the state file
-    region         = "us-east-1"            # Your AWS region
-    encrypt        = true                   # Enable encryption for state file
-  }
-}
-
-
 module "ec2_instances" {
-  source           = "./modules/ec2"
-  instance_count   = 3
-  instance_type    = "t2.medium"
-  ami_id           = "ami-005fc0f236362e99f"  # Replace with the correct Ubuntu 20.04 AMI ID for your region
-  security_group_id = module.security_group.sg_id
+  source = "./modules/ec2"
+  
+  instance_count = 3
+  instance_type  = var.instance_type
+  ami_id         = var.ami_id
+  key_name       = var.key_name
+  vpc_id         = var.vpc_id
+  subnet_id      = var.subnet_id
 }
 
 module "security_group" {
-  source = "./modules/security-group"
+  source = "./modules/security_group"
+  
+  vpc_id = var.vpc_id
+}
+
+output "ec2_instance_ids" {
+  value = module.ec2_instances.instance_ids
+}
+
+output "security_group_id" {
+  value = module.security_group.security_group_id
 }
