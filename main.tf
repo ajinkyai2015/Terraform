@@ -1,13 +1,13 @@
 
 terraform {
   backend "s3" {
-    bucket         = "cicd-statefile"       # Your S3 bucket name
-    key            = "terraform/ec2-state.tfstate"  # Path to store the state file within the bucket
-    region         = "us-east-1"            # Specify your region
-    encrypt        = true                   # Enable encryption at rest
-    dynamodb_table = "terraform-lock"       # DynamoDB table for state locking (optional)
+    bucket         = "cicd-statefile"       # Your S3 bucket for state storage
+    key            = "terraform/ec2-state.tfstate"  # Path to store the state file
+    region         = "us-east-1"            # Your AWS region
+    encrypt        = true                   # Enable encryption for state file
   }
 }
+
 
 module "ec2_instances" {
   source           = "./modules/ec2"
